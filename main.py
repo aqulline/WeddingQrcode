@@ -15,3 +15,43 @@ Window.keyboard_anim_args = {"d": .2, "t": "linear"}
 Window.softinput_mode = "below_target"
 Clock.max_iteration = 250
 
+if utils.platform != 'android':
+    Window.size = (412, 732)
+
+
+class MainApp(MDApp):
+    # app
+    size_x, size_y = Window.size
+
+    # screen
+    screens = ['home']
+    screens_size = NumericProperty(len(screens) - 1)
+    current = StringProperty(screens[len(screens) - 1])
+
+    def screen_capture(self, screen):
+        sm = self.root
+        sm.current = screen
+        if screen in self.screens:
+            pass
+        else:
+            self.screens.append(screen)
+        print(self.screens)
+        self.screens_size = len(self.screens) - 1
+        self.current = self.screens[len(self.screens) - 1]
+        print(f'size {self.screens_size}')
+        print(f'current screen {screen}')
+
+    def screen_leave(self):
+        print(f"your were in {self.current}")
+        last_screens = self.current
+        self.screens.remove(last_screens)
+        print(self.screens)
+        self.screens_size = len(self.screens) - 1
+        self.current = self.screens[len(self.screens) - 1]
+        self.screen_capture(self.current)
+
+    def build(self):
+        self.theme_cls.material_style = "M3"
+
+
+MainApp().run()
