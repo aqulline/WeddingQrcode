@@ -4,6 +4,7 @@ from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy import utils
+import qrcode
 from kivymd.toast import toast
 from kivymd.uix.card import MDCard
 from kivymd.uix.list import IRightBodyTouch, TwoLineAvatarIconListItem
@@ -28,6 +29,20 @@ class MainApp(MDApp):
     screens_size = NumericProperty(len(screens) - 1)
     current = StringProperty(screens[len(screens) - 1])
 
+
+    def qr_code(self):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+
+        qr.add_data("WeddingQrcode")
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        img.save("example.png")
+        
     def screen_capture(self, screen):
         sm = self.root
         sm.current = screen
