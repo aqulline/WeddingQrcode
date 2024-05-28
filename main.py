@@ -5,6 +5,7 @@ import threading
 from PIL import Image
 from kivy.base import EventLoop
 from kivy.properties import NumericProperty, StringProperty, DictProperty, ListProperty, BooleanProperty, ObjectProperty
+from kivy.uix.floatlayout import FloatLayout
 from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.clock import Clock, mainthread
@@ -13,6 +14,7 @@ import qrcode
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.list import OneLineListItem, TwoLineIconListItem, TwoLineListItem, IconLeftWidget
 from pyzbar.pyzbar import decode
 from kivymd.toast import toast
 from camera4kivy import Preview
@@ -31,6 +33,11 @@ if utils.platform != 'android':
 class Spin(MDBoxLayout):
     pass
 
+class Admin(FloatLayout):
+    pass
+
+class Ceremony(FloatLayout):
+    pass
 
 class Front(MDCard):
     pass
@@ -93,6 +100,11 @@ class MainApp(MDApp):
     guest_fetch_name = StringProperty("")
     guest_fetch_phone = StringProperty("")
     guest_datas = {}
+
+    # report
+    ceremony_report = {}
+    total_guest = StringProperty("")
+    total_attended = StringProperty("")
 
     def on_start(self):
         if utils.platform == 'android':
@@ -201,6 +213,26 @@ class MainApp(MDApp):
         barcode = self.root.ids.pda.text
         FB.scan_guest(FB(), barcode)
         self.get_data()
+
+    def ceremony_report_optimize(self):
+        self.spin_dialog()
+        # thr = threading.Thread(target=self.ceremony_reports)
+        # thr.start()
+
+        Clock.schedule_once(lambda dt: self.ceremony_reports(), 0)
+
+    def ceremony_reports(self):
+        report_list = self.root.ids.report_list
+        ceremony_report = FB.ceremony_report(FB(), "666")
+
+        self.total_guest = str(ceremony_report['total_guest'])
+        self.total_attended = str(ceremony_report['attended_guest'])
+        for guest in ceremony_report['not_attended']:
+            item = TwoLineIconListItem(text=guest['name'], secondary_text=guest['phone'])
+            item.add_widget(IconLeftWidget(icon="phone"))
+            item.bind(on_release=lambda x: print(guest['phone']))
+            report_list.add_widget(item)
+        Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
 
     def request_android_permissions(self):
         from android.permissions import request_permissions, Permission

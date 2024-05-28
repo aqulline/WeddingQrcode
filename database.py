@@ -302,7 +302,7 @@ class FireBase:
 # x = FireBase.scan_guest(FireBase(), "20240510112246919903")
 # print(x)
 
-# r = FireBase.ceremony_report(FireBase(), "Mbuyas")
+# r = FireBase.ceremony_report(FireBase(), "666")
 # print(r)
 
 # gr = FireBase.guest_report(FireBase(), phone="0715700411")

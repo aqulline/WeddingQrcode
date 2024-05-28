@@ -7,92 +7,14 @@ ScreenManager:
     MDScreen:
         name:'home'
         md_bg_color:"#C6C7C4"
+        id:homes
         MDTopAppBar:
             title: "Home"
             elevation:2
             pos_hint: {"top": 1}
             md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
             specific_text_color: "#C6C7C4"
-        FloatLayout:
-            MDCard:
-                radius:20
-                #height:240
-                elevation:3
-                size_hint:None, None
-                shadow_softness:2
-                size:app.size_x/3,app.size_y/6
-                md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
-                adaptive_height:True
-                style:"outlined"
-                adaptive_width:True
-                pos_hint:{'center_x':.5, 'center_y':.7}
-                on_release:
-                    app.screen_capture("detail_scanner")
-                FloatLayout:
-                    MDIcon:
-                        icon:"qrcode-scan"
-                        #halign:"center"
-                        font_size:"60sp"
-                        pos_hint: {"center_x": .5, "center_y": .6}
-                    MDLabel:
-                        text:"Scan Qrcode"
-                        halign:"center"
-                        text_color:"#C6C7C4"
-                        theme_text_color:"Custom"
-                        pos_hint: {"center_x": .5, "center_y": .15}
-                        font_name:'components/fonts/Gill Sans.otf'
-            MDCard:
-                radius:20
-                #height:240
-                elevation:3
-                size_hint:None, None
-                shadow_softness:2
-                size:app.size_x/3,app.size_y/6
-                md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
-                adaptive_height:True
-                style:"outlined"
-                adaptive_width:True
-                pos_hint:{'center_x':.5, 'center_y':.4}
-                on_release:
-                    app.screen_capture("ceremony")
-                FloatLayout:
-                    MDIcon:
-                        icon:"account-multiple-plus-outline"
-                        #halign:"center"
-                        font_size:"60sp"
-                        pos_hint: {"center_x": .5, "center_y": .6}
-                    MDLabel:
-                        text:"Create ceremony"
-                        halign:"center"
-                        text_color:"#C6C7C4"
-                        theme_text_color:"Custom"
-                        pos_hint: {"center_x": .5, "center_y": .15}
-                        font_name:'components/fonts/Gill Sans.otf'
-            MDCard:
-                radius:20
-                elevation:3
-                size_hint:None, None
-                shadow_softness:2
-                size:app.size_x/3,app.size_y/6
-                md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
-                adaptive_height:True
-                style:"outlined"
-                adaptive_width:True
-                pos_hint:{'center_x':.5, 'center_y':.1}
-                on_release:
-                    app.screen_capture("report")
-                FloatLayout:
-                    MDIcon:
-                        icon:"file-document-box-multiple-outline"
-                        font_size:"60sp"
-                        pos_hint: {"center_x": .5, "center_y": .6}
-                    MDLabel:
-                        text:"Report Category"
-                        halign:"center"
-                        text_color:"#C6C7C4"
-                        theme_text_color:"Custom"
-                        pos_hint: {"center_x": .5, "center_y": .15}
-                        font_name:'components/fonts/Gill Sans.otf'
+        Ceremony:
 
     MDScreen:
         name:'ceremony'
@@ -258,6 +180,40 @@ ScreenManager:
                         on_release:
                             print("submit")
                             app.scan_user_optimize()
+    MDScreen:
+        name:"reports"
+        md_bg_color:"#C6C7C4"
+        on_enter:
+            app.ceremony_report_optimize()
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: dp(10)
+            padding: dp(20)
+            MDTopAppBar:
+                title: "Report"
+                elevation:2
+                md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
+                specific_text_color: "#C6C7C4"
+            MDCard:
+                orientation: "horizontal"
+                padding: "8dp"
+                radius: [25,]
+                elevation:2
+                md_bg_color: [0.7, 0.7, 0.7, 1]  # Blue color for total guests
+                MDLabel:
+                    text: "Total Guests: "+app.total_guest
+                    halign: "center"
+                MDLabel:
+                    text: "Attended Guests: "+app.total_attended
+                    halign: "center"
+            MDLabel:
+                text: "Yet to attend"
+                halign: "center"
+                size_hint_y: None
+                height: self.texture_size[1]
+            ScrollView:
+                MDList:
+                    id: report_list
 
 
 <Front>:
@@ -288,3 +244,86 @@ ScreenManager:
         theme_text_color: "Custom"
         text_color:78/255, 82/255, 84/255, 1
         pos_hint: {'center_x': .5, 'center_y': 1}
+
+<Admin>:
+    MDCard:
+        radius:20
+        #height:240
+        elevation:3
+        size_hint:None, None
+        shadow_softness:2
+        size:app.size_x/3,app.size_y/6
+        md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
+        adaptive_height:True
+        style:"outlined"
+        adaptive_width:True
+        pos_hint:{'center_x':.5, 'center_y':.7}
+        on_release:
+            app.screen_capture("detail_scanner")
+        FloatLayout:
+            MDIcon:
+                icon:"qrcode-scan"
+                #halign:"center"
+                font_size:"60sp"
+                pos_hint: {"center_x": .5, "center_y": .6}
+            MDLabel:
+                text:"Scan Qrcode"
+                halign:"center"
+                text_color:"#C6C7C4"
+                theme_text_color:"Custom"
+                pos_hint: {"center_x": .5, "center_y": .15}
+                font_name:'components/fonts/Gill Sans.otf'
+    MDCard:
+        radius:20
+        #height:240
+        elevation:3
+        size_hint:None, None
+        shadow_softness:2
+        size:app.size_x/3,app.size_y/6
+        md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
+        adaptive_height:True
+        style:"outlined"
+        adaptive_width:True
+        pos_hint:{'center_x':.5, 'center_y':.4}
+        on_release:
+            app.screen_capture("ceremony")
+        FloatLayout:
+            MDIcon:
+                icon:"account-multiple-plus-outline"
+                #halign:"center"
+                font_size:"60sp"
+                pos_hint: {"center_x": .5, "center_y": .6}
+            MDLabel:
+                text:"Create ceremony"
+                halign:"center"
+                text_color:"#C6C7C4"
+                theme_text_color:"Custom"
+                pos_hint: {"center_x": .5, "center_y": .15}
+                font_name:'components/fonts/Gill Sans.otf'
+
+<Ceremony>:
+    MDCard:
+        radius:20
+        elevation:3
+        size_hint:None, None
+        shadow_softness:2
+        size:app.size_x/3,app.size_y/6
+        md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
+        adaptive_height:True
+        style:"outlined"
+        adaptive_width:True
+        pos_hint:{'center_x':.5, 'center_y':.5}
+        on_release:
+            app.screen_capture("reports")
+        FloatLayout:
+            MDIcon:
+                icon:"clipboard-text"
+                font_size:"60sp"
+                pos_hint: {"center_x": .5, "center_y": .6}
+            MDLabel:
+                text:"Reports"
+                halign:"center"
+                text_color:"#C6C7C4"
+                theme_text_color:"Custom"
+                pos_hint: {"center_x": .5, "center_y": .15}
+                font_name:'components/fonts/Gill Sans.otf'
