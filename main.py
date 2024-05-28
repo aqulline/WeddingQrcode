@@ -74,6 +74,8 @@ class MainApp(MDApp):
     size_x, size_y = Window.size
     dialog_spin = None
 
+    roles = ['Admin', 'Customer']
+
     # screen
     screens = ['home']
     screens_size = NumericProperty(len(screens) - 1)
@@ -189,6 +191,16 @@ class MainApp(MDApp):
 
     def verify_user(self, gen_id):
         FB.scan_guest(FB(), gen_id)
+
+    def scan_user_optimize(self):
+        self.spin_dialog()
+        thr = threading.Thread(target=self.scan_user)
+        thr.start()
+
+    def scan_user(self):
+        barcode = self.root.ids.pda.text
+        FB.scan_guest(FB(), barcode)
+        self.get_data()
 
     def request_android_permissions(self):
         from android.permissions import request_permissions, Permission

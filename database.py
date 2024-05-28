@@ -296,6 +296,8 @@ class FireBase:
         except Exception as e:
             return {"error": f"An error occurred: {e}"}
 
+    def fetch_all_guest(self, ceremony_name):
+        guests = [{"phaone": "", "attended": ""}]
 
 # x = FireBase.scan_guest(FireBase(), "20240510112246919903")
 # print(x)

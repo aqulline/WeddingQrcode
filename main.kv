@@ -68,6 +68,31 @@ ScreenManager:
                         theme_text_color:"Custom"
                         pos_hint: {"center_x": .5, "center_y": .15}
                         font_name:'components/fonts/Gill Sans.otf'
+            MDCard:
+                radius:20
+                elevation:3
+                size_hint:None, None
+                shadow_softness:2
+                size:app.size_x/3,app.size_y/6
+                md_bg_color:53 / 225, 59 / 225, 60 / 225, 1
+                adaptive_height:True
+                style:"outlined"
+                adaptive_width:True
+                pos_hint:{'center_x':.5, 'center_y':.1}
+                on_release:
+                    app.screen_capture("report")
+                FloatLayout:
+                    MDIcon:
+                        icon:"file-document-box-multiple-outline"
+                        font_size:"60sp"
+                        pos_hint: {"center_x": .5, "center_y": .6}
+                    MDLabel:
+                        text:"Report Category"
+                        halign:"center"
+                        text_color:"#C6C7C4"
+                        theme_text_color:"Custom"
+                        pos_hint: {"center_x": .5, "center_y": .15}
+                        font_name:'components/fonts/Gill Sans.otf'
 
     MDScreen:
         name:'ceremony'
@@ -232,7 +257,7 @@ ScreenManager:
                         pos_hint:{"center_x":.5, "center_y":.18}
                         on_release:
                             print("submit")
-                            app.get_guest( guest_number.text, guest_name.text, ceremony_name.text)
+                            app.scan_user_optimize()
 
 
 <Front>:
