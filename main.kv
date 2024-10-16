@@ -14,7 +14,7 @@ ScreenManager:
             pos_hint: {"top": 1}
             md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
             specific_text_color: "#C6C7C4"
-        Ceremony:
+        Admin:
 
     MDScreen:
         name:'ceremony'
@@ -33,7 +33,7 @@ ScreenManager:
 
             MDLabel:
                 text:"Ceremony Name"
-                halign:"center"
+                halign:"left"
                 theme_text_color: "Secondary"
                 font_name:'components/fonts/Gill Sans.otf'
 
@@ -42,28 +42,46 @@ ScreenManager:
                 mode: "rectangle"
                 hint_text:"Enter ceremony name"
                 font_size: dp(18)
+                foreground_color: 53 / 225, 59 / 225, 60 / 225, 1
+                line_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                fill_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                hint_text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                halign: 'left'
 
             MDLabel:
                 text:"Guest Name"
-                halign:"center"
+                halign:"left"
                 theme_text_color: "Secondary"
                 font_name:'components/fonts/Gill Sans.otf'
             MDTextField:
                 id:guest_name
                 mode: "rectangle"
                 hint_text:"Enter guest name"
+                foreground_color: 53 / 225, 59 / 225, 60 / 225, 1
+                line_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                fill_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                hint_text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
                 font_size: dp(18)
+                halign: 'left'
 
             MDLabel:
                 text:"Guest Number"
-                halign:"center"
+                halign:"left"
                 theme_text_color: "Secondary"
                 font_name:'components/fonts/Gill Sans.otf'
             NumberOnlyField:
                 id:guest_number
                 mode: "rectangle"
                 hint_text:"Enter guest number"
+                foreground_color: 53 / 225, 59 / 225, 60 / 225, 1
+                line_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                fill_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                hint_text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
+                text_color_focus: 53 / 225, 59 / 225, 60 / 225, 1
                 font_size: dp(18)
+                halign: 'left'
 
             MDRaisedButton:
                 text:"Submit"
@@ -78,8 +96,6 @@ ScreenManager:
                 text: "Please fill in all the details"
                 theme_text_color: "Hint"
                 halign: "center"
-
-
 
     MDScreen:
         name:"detail_scanner"
@@ -214,6 +230,30 @@ ScreenManager:
             ScrollView:
                 MDList:
                     id: report_list
+    MDScreen:
+        name: "story"
+        on_enter:
+            app.storey()
+        ScrollView:
+            bar_color: [0.2, 0.5, 0.8, 1]  # Scroll bar color
+            bar_inactive_color: [0.6, 0.7, 0.9, 0.5]  # Inactive scroll bar color
+            effect_cls: "ScrollEffect"  # Scroll effect
+            scroll_type: ['bars', 'content']  # Scroll type
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: self.minimum_height  # This will allow the layout to grow as text is added.
+
+                MDLabel:
+                    id: story_label
+                    text: app.story  # Your story text goes here
+                    theme_text_color: "Custom"
+                    text_color: [0.411, 0.352, 0.282, 1]  # Book-like color
+                    font_style: "Body1"
+                    halign: "center"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    pos_hint: {"center_x": .5}
 
 
 <Front>:
@@ -286,7 +326,7 @@ ScreenManager:
         adaptive_width:True
         pos_hint:{'center_x':.5, 'center_y':.4}
         on_release:
-            app.screen_capture("ceremony")
+            app.screen_capture("story")
         FloatLayout:
             MDIcon:
                 icon:"account-multiple-plus-outline"

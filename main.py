@@ -14,7 +14,7 @@ import qrcode
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import OneLineListItem, TwoLineIconListItem, TwoLineListItem, IconLeftWidget
+from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget
 from pyzbar.pyzbar import decode
 from kivymd.toast import toast
 from camera4kivy import Preview
@@ -100,6 +100,7 @@ class MainApp(MDApp):
     guest_fetch_name = StringProperty("")
     guest_fetch_phone = StringProperty("")
     guest_datas = {}
+    story = StringProperty("")
 
     # report
     ceremony_report = {}
@@ -229,10 +230,17 @@ class MainApp(MDApp):
         self.total_attended = str(ceremony_report['attended_guest'])
         for guest in ceremony_report['not_attended']:
             item = TwoLineIconListItem(text=guest['name'], secondary_text=guest['phone'])
-            item.add_widget(IconLeftWidget(icon="phone"))
+            item.add_widget(IconLeftWidget(icon="account"))
             item.bind(on_release=lambda x: print(guest['phone']))
             report_list.add_widget(item)
         Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
+
+    def storey(self):
+        from GeminiAIChat.core import API
+
+        res = API("AIzaSyCzyGes0YoWBk1tUa-857h1cE5k-RS1MsI")
+        res.prompt("A Long Mystery story with a dialogue like structure")
+        self.story = str(res.response())
 
     def request_android_permissions(self):
         from android.permissions import request_permissions, Permission
