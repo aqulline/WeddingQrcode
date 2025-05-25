@@ -14,12 +14,14 @@ import qrcode
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget
+from kivymd.uix.list import TwoLineIconListItem, IconLeftWidget, TwoLineAvatarIconListItem, IRightBodyTouch, \
+    ThreeLineAvatarIconListItem
 from pyzbar.pyzbar import decode
 from kivymd.toast import toast
 from camera4kivy import Preview
 from kivymd.uix.textfield import MDTextField
 
+from tsup_media import Whatsapp as WS
 from database import FireBase as FB
 
 Window.keyboard_anim_args = {"d": .2, "t": "linear"}
@@ -29,6 +31,16 @@ Clock.max_iteration = 250
 if utils.platform != 'android':
     Window.size = (412, 732)
 
+class Contacts(ThreeLineAvatarIconListItem):
+    name = StringProperty("")
+    image = StringProperty("")
+    contact_id = StringProperty("")
+    phone = StringProperty("")
+    whatsapp_status = StringProperty("Default")
+    normal_status = StringProperty("False")
+
+class CallContainer(IRightBodyTouch, MDBoxLayout):
+    adaptive_width = True
 
 class Spin(MDBoxLayout):
     pass
@@ -41,6 +53,7 @@ class Ceremony(FloatLayout):
 
 class Front(MDCard):
     pass
+
 
 
 class Scan_Analyze(Preview):
@@ -80,6 +93,9 @@ class MainApp(MDApp):
     # app
     size_x, size_y = Window.size
     dialog_spin = None
+    is_admin = BooleanProperty(False)
+    admin_pos_x = NumericProperty(.5)
+    admin_pos_y = NumericProperty(.04)
 
     roles = ['Admin', 'Customer']
 
@@ -91,21 +107,31 @@ class MainApp(MDApp):
     # user
     guest_name = StringProperty("loading...")
     guest_number = StringProperty("loading...")
-    ceremony_name = StringProperty("loading...")
+    ceremony_name = StringProperty("CM")
     guest_id = StringProperty("loading...")
     guest_data = DictProperty({})
+    isDouble = False
 
     # fetched
     guest_scanned = StringProperty("")
     guest_fetch_name = StringProperty("")
     guest_fetch_phone = StringProperty("")
-    guest_datas = {}
+    # guest_datas = {}
     story = StringProperty("")
 
     # report
     ceremony_report = {}
-    total_guest = StringProperty("")
-    total_attended = StringProperty("")
+    total_guest = StringProperty("0")
+    total_attended = StringProperty("0")
+    total_confirmed = StringProperty("0")
+    title_data = StringProperty("")
+    data_getter = StringProperty("all_guests")
+
+    #Guest Report
+    attend_time = StringProperty('Not Yet')
+    guest_phone = StringProperty('Not Yet')
+    guest_name_r = StringProperty("Not Yet")
+
 
     def on_start(self):
         if utils.platform == 'android':
@@ -145,16 +171,63 @@ class MainApp(MDApp):
         refer = str(datetime.now())
         refer = refer.replace('-', '').replace(':', '').replace(' ', '').replace('.', '')
         return str(refer)
+    def toggle_double(self, active):
+        print(active.active)
+        if active.active == True:
+            active.active = False
+            print(f"Set {active.active} to False")
+            return False
+        if active.active == False:
+            active.active = True
+            print(f"Set {active.active} to True")
+            return True
 
-    def get_guest(self, phone, name, ceremony_name):
+    def add_attender_opt(self):
+        self.spin_dialog()
+        thr = threading.Thread(target=self.add_attenders)
+        thr.start()
+
+    def phone_repr(self, phone):
+        new_number = ""
+        if phone != "" and len(phone) != 9:
+            for i in range(phone.__len__()):
+                if i == 0:
+                    pass
+                else:
+                    new_number = new_number + phone[i]
+            number = "255" + new_number
+            public_number = number
+            return public_number
+        return False
+
+    def add_attenders(self):
+        FB.add_attender(FB(), self.guest_number, self.guest_name, self.guest_id, self.ceremony_name, self.isDouble)
+        phone = self.phone_repr(self.guest_number)
+        if phone:
+            WS.send_image(WS(), self.guest_number, f"{self.guest_name} {self.guest_number} Ni double {self.isDouble}")
+            WS.send_invitation(WS(), phone, self.guest_number, self.guest_name)
+        else:
+            Clock.schedule_once(lambda dt: toast("Check phone number!"), 0)
+        Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
+        Clock.schedule_once(lambda dt: toast("Guest added successful!"), 0)
+
+    def guest_report(self, guest_phone):
+        data = FB.search_idex_phone(FB(), guest_phone)
+        print(data)
+        self.guest_name_r = data.get("User_Info").get("user_name", '')
+        self.guest_phone = data.get("User_Info").get("user_phone", '')
+        self.attend_time = data.get("User_Info").get("scanned_time", 'Not Yet')
+
+    def get_guest(self, phone, name, ceremony_name, isDouble):
         print(phone, name, ceremony_name)
         self.ceremony_name = ceremony_name
         self.guest_name = name
         self.guest_number = phone
         self.guest_id = self.generate_guest_id()
         self.qr_code(self.guest_id, self.guest_number)
+        self.isDouble = isDouble
 
-        FB.add_attender(FB(), self.guest_number, self.guest_name, self.guest_id, self.ceremony_name)
+        # FB.add_attender(FB(), self.guest_number, self.guest_name, self.guest_id, self.ceremony_name, isDouble)
 
     def qr_code(self, id_gen, phone):
         qr = qrcode.QRCode(
@@ -189,21 +262,22 @@ class MainApp(MDApp):
 
                 self.spin_dialog()
                 # guest_data = FB.search_id(FB(), barcode)
-
+                self.screen_capture("Confirm")
                 thr = threading.Thread(target=self.get_data)
                 thr.start()
 
     def get_data(self):
         barcode = self.root.ids.pda.text
-        self.guest_data = FB.search_id(FB(), barcode)
-        if self.guest_data:
-            self.guest_fetch_name = self.guest_data['user_name']
-            self.guest_fetch_phone = self.guest_data['user_phone']
-            self.guest_scanned = str(self.guest_data['scanned'])
-            Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
+        guest_data = FB.search_idex(FB(), barcode, self.ceremony_name)
+        if guest_data:
+            self.guest_fetch_name = guest_data[1]['User_Info']['user_name']
+            self.guest_fetch_phone = guest_data[1]['User_Info']['user_phone']
+            self.guest_scanned = str(guest_data[1]['User_Info']['scanned'])
+            if self.dialog_spin:
+                Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
 
     def verify_user(self, gen_id):
-        FB.scan_guest(FB(), gen_id)
+        print(gen_id)
 
     def scan_user_optimize(self):
         self.spin_dialog()
@@ -211,8 +285,8 @@ class MainApp(MDApp):
         thr.start()
 
     def scan_user(self):
-        barcode = self.root.ids.pda.text
-        FB.scan_guest(FB(), barcode)
+        data = FB.scan_guest(FB(), self.guest_fetch_phone, self.ceremony_name)
+        Clock.schedule_once(lambda dt: toast(data), 0)
         self.get_data()
 
     def ceremony_report_optimize(self):
@@ -222,25 +296,72 @@ class MainApp(MDApp):
 
         Clock.schedule_once(lambda dt: self.ceremony_reports(), 0)
 
+    guest_datas = DictProperty({})
     def ceremony_reports(self):
         report_list = self.root.ids.report_list
-        ceremony_report = FB.ceremony_report(FB(), "666")
+        ceremony_report = FB.ceremony_report(FB(), self.ceremony_name)
 
+        print(ceremony_report)
+        self.guest_datas = ceremony_report
         self.total_guest = str(ceremony_report['total_guest'])
         self.total_attended = str(ceremony_report['attended_guest'])
-        for guest in ceremony_report['not_attended']:
-            item = TwoLineIconListItem(text=guest['name'], secondary_text=guest['phone'])
-            item.add_widget(IconLeftWidget(icon="account"))
-            item.bind(on_release=lambda x: print(guest['phone']))
-            report_list.add_widget(item)
+        self.total_confirmed = str(ceremony_report['total_confirmed'])
+        # Clock.schedule_once(lambda dt: self.load_contacts_to_ui(ceremony_report), 0)
         Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
 
-    def storey(self):
-        from GeminiAIChat.core import API
+    # for guest in ceremony_report['not_attended']:
+    #     item = TwoLineIconListItem(text=guest['name'], secondary_text=guest['phone'])
+    #     item.add_widget(IconLeftWidget(icon="account"))
+    #     item.bind(on_release=lambda x: print(guest['phone']))
+    #     report_list.add_widget(item)
 
-        res = API("AIzaSyCzyGes0YoWBk1tUa-857h1cE5k-RS1MsI")
-        res.prompt("A Long Mystery story with a dialogue like structure")
-        self.story = str(res.response())
+    def search_data(self, text):
+        """Helper function to load contacts into the UI."""
+        self.root.ids.guests.data = {}
+
+        index = 0
+        for guest in self.guest_datas[self.data_getter]:
+            if text in guest['name'] or text in guest['phone']:
+                self.root.ids.guests.data.append(
+                    {
+                        "viewclass": "Contacts",
+                        "name": guest['name'],
+                        "image": "components/account.png",
+                        "id": guest['phone'],
+                        "phone": guest['phone'],
+                        "text": guest['name'],
+                        "secondary": guest['phone'],"whatsapp_status": guest.get('whatsapp_status', 'Default'),
+                        "normal_status": str(guest.get('normal_sms', 'False')),
+
+                    }
+                )
+                index += 1
+
+    def load_contacts_to_ui(self):
+        """Helper function to load contacts into the UI."""
+        self.root.ids.guests.data = {}
+
+        index = 0
+        for guest in self.guest_datas[self.data_getter]:
+            self.root.ids.guests.data.append(
+                {
+                    "viewclass": "Contacts",
+                    "name": guest['name'],
+                    "image": "components/account.png",
+                    "id": guest['phone'],
+                    "phone": guest['phone'],
+                    "text": guest['name'],
+                    "secondary": guest['phone'],
+                    "whatsapp_status": guest.get('whatsapp_status', 'Default'),
+                    "normal_status": str(guest.get('normal_sms', 'False')),
+                }
+            )
+            index += 1
+
+    def call(self, phone):
+        # from call import Actions as AC
+        from beem import call as CL
+        CL.Actions.call(CL.Actions(), phone)
 
     def request_android_permissions(self):
         from android.permissions import request_permissions, Permission

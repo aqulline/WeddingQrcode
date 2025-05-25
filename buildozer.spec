@@ -22,7 +22,7 @@ source.include_exts = py, png, jpg, kv, atlas, json, jpeg, txt, ttf, otf
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = tests, bin, venv, cache
+source.exclude_dirs = tests, bin, venv, cache, Cardrs, Qrcodes2, TECARD, Qrcodes, Cards, Cards2, Cards3, Cards4, Cards5
 
 # (list) List of exclusions using pattern matching
 # Do not prefix with './'
@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy, kivymd, pillow, android, https://github.com/HyTurtle/plyer/archive/master.zip, kivy_garden.mapview,requests, openssl, urllib3, httplib2==0.18.1, charset-normalizer, chardet, idna, jwt, cryptography, pyparsing==2.4.7, cachetools, pyasn1, pyasn1-modules, rsa,  protobuf, cachecontrol, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz, ratelim, decorator, click, future,firebase-admin, google-auth, google-api-python-client, google-api-core, pyzbar, camera4kivy, gestures4kivy, qrcode, typing_extensions, typing-inspect, pypng
+requirements = python3, kivy, kivymd, pillow, android, plyer, kivy_garden.mapview,requests, openssl, urllib3, httplib2==0.18.1, charset-normalizer, chardet, idna, jwt, cryptography, pyparsing==2.4.7, cachetools, pyasn1, pyasn1-modules, rsa,  protobuf, cachecontrol, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz, ratelim, decorator, click, future,firebase-admin, google-auth, google-api-python-client, google-api-core, pyzbar, camera4kivy, gestures4kivy, qrcode, typing_extensions, typing-inspect, pypng
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
