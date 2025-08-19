@@ -14,7 +14,7 @@ ScreenManager:
             pos_hint: {"top": 1}
             md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
             specific_text_color: "#C6C7C4"
-        Ceremony:
+        Admin:
 
     MDScreen:
         name:"guest_report"
@@ -55,6 +55,20 @@ ScreenManager:
                         font_size:"18sp"
                         size_hint_y: None
                         pos_hint:{'center_x':.6, 'center_y':.5}
+                    MDLabel:
+                        text:"Confirmed:"
+                        halign:"left"
+                        theme_text_color: "Secondary"
+                        font_size:"18sp"
+                        size_hint_y: None
+                        pos_hint:{'center_x':.6, 'center_y':.4}
+                    MDSwitch:
+                        pos_hint: {'center_x': .7, 'center_y': .4}
+                        active: app.confirmed_status
+                        on_active:
+                            print(self.active)
+                            app.guest_confirmed(self.active, app.guest_phone)
+
 
     MDScreen:
         name:'ceremony'
@@ -240,6 +254,13 @@ ScreenManager:
                         font_size:"18sp"
                         size_hint_y: None
                         pos_hint:{'center_x':.6, 'center_y':.5}
+                    MDLabel:
+                        text:"Card Type:"+" "+app.guest_type
+                        halign:"left"
+                        theme_text_color: "Secondary"
+                        font_size:"18sp"
+                        size_hint_y: None
+                        pos_hint:{'center_x':.6, 'center_y':.4}
                     MDRaisedButton:
                         text:"Confirm"
                         md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1

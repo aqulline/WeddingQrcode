@@ -3,6 +3,7 @@
 # from rich.diagnose import report
 #
 from beem import sms
+import requests
 
 class FireBase:
     def Register_user(self, phone, username, password):
@@ -184,6 +185,29 @@ class FireBase:
         except Exception as e:
             print(e)
             return False
+
+    def confirm_guest(self, ceremony_name, guest_phone, status):
+        import firebase_admin
+        firebase_admin._apps.clear()
+        from firebase_admin import credentials, initialize_app, db
+        try:
+            # Initialize Firebase app with credentials and database URL
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+
+            # Reference to the ceremony's info node
+            ceremony_guest_info_ref = db.reference("Ceremony").child(ceremony_name).child(guest_phone).child('User_Info')
+
+            print(ceremony_guest_info_ref.get())
+            if ceremony_guest_info_ref.get():
+                ceremony_guest_info_ref.update({
+                    "confirmed": status,
+                })
+
+            return {"message": "User added successfully!", "status": 200}
+
+        except Exception as e:
+            return {"message": f"Internal Server error {e}", "status": 500}
 
     def search_idex_phone(self, phone, ceremony_name):
         import firebase_admin
@@ -415,12 +439,23 @@ class FireBase:
     def fetch_all_guest(self, ceremony_name):
         guests = [{"phaone": "", "attended": ""}]
 
-# x = FireBase.scan_guest(FireBase(), "20240510112246919903")
-# print(x)
-# x = FireBase.search_idex(FireBase(), 'ENS67', 'ENS')
-# print(x)
-# r = FireBase.ceremony_report(FireBase(), "666")
-# print(r)
 
-# gr = FireBase.guest_report(FireBase(), phone="0715700411")
-# print(gr)
+    def get_guest(self, guest_id):
+        response = requests.post(url=f'http://127.0.0.1:8000/guest/{guest_id}/',
+                                 headers={'Content-Type': 'application/json'},)
+
+        if response.status_code == 200:
+            return [response.json(), 200]
+        else:
+            return [response.json(), 404]
+
+
+    def scan_guest_API(self, guest_id):
+        response = requests.post(url=f'http://127.0.0.1:8000/guest/{guest_id}/scanned/',
+                                 headers={'Content-Type': 'application/json'}, )
+
+        return response.json()
+
+
+
+# FireBase.get_guest(FireBase(), "10616")

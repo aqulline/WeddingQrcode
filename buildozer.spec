@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy, kivymd, pillow, android, plyer, kivy_garden.mapview,requests, openssl, urllib3, httplib2==0.18.1, charset-normalizer, chardet, idna, jwt, cryptography, pyparsing==2.4.7, cachetools, pyasn1, pyasn1-modules, rsa,  protobuf, cachecontrol, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz, ratelim, decorator, click, future,firebase-admin, google-auth, google-api-python-client, google-api-core, pyzbar, camera4kivy, gestures4kivy, qrcode, typing_extensions, typing-inspect, pypng
+requirements = python3, kivy, kivymd, pillow, android, plyer, kivy_garden.mapview,requests, openssl, urllib3, httplib2==0.18.1, charset-normalizer, chardet, idna, jwt, cryptography, pyparsing==2.4.7, cachetools, pyasn1, pyasn1-modules, rsa,  protobuf, cachecontrol, requests-toolbelt, oauth2client, python_jwt, jwcrypto, pytz, ratelim, decorator, click, future,firebase-admin, google-auth, google-api-python-client, google-api-core, pyzbar, camera4kivy, gestures4kivy, qrcode, typing_extensions, typing-inspect, pypng, httpx
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -349,8 +349,8 @@ p4a.hook = camerax_provider/gradle_options.py
 #p4a.setup_py = false
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
-#p4a.extra_args =
-
+#p4a.extra_args = --warning-mode all
+#p4a.extra_gradle_arguments = --stacktrace --no-daemon --warning-mode all
 
 
 #
@@ -450,3 +450,6 @@ warn_on_root = 1
 #    Then, invoke the command line with the "demo" profile:
 #
 #buildozer --profile demo android debug
+
+#export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64;export PATH="$JAVA_HOME/bin:$PATH"
+

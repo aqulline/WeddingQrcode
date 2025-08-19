@@ -1,4 +1,5 @@
 import re
+import string
 from datetime import datetime
 import threading
 
@@ -107,7 +108,7 @@ class MainApp(MDApp):
     # user
     guest_name = StringProperty("loading...")
     guest_number = StringProperty("loading...")
-    ceremony_name = StringProperty("CM")
+    ceremony_name = StringProperty("ANS")
     guest_id = StringProperty("loading...")
     guest_data = DictProperty({})
     isDouble = False
@@ -116,6 +117,7 @@ class MainApp(MDApp):
     guest_scanned = StringProperty("")
     guest_fetch_name = StringProperty("")
     guest_fetch_phone = StringProperty("")
+    guest_type = StringProperty("")
     # guest_datas = {}
     story = StringProperty("")
 
@@ -131,6 +133,7 @@ class MainApp(MDApp):
     attend_time = StringProperty('Not Yet')
     guest_phone = StringProperty('Not Yet')
     guest_name_r = StringProperty("Not Yet")
+    confirmed_status = BooleanProperty(False)
 
 
     def on_start(self):
@@ -171,6 +174,7 @@ class MainApp(MDApp):
         refer = str(datetime.now())
         refer = refer.replace('-', '').replace(':', '').replace(' ', '').replace('.', '')
         return str(refer)
+
     def toggle_double(self, active):
         print(active.active)
         if active.active == True:
@@ -212,11 +216,23 @@ class MainApp(MDApp):
         Clock.schedule_once(lambda dt: toast("Guest added successful!"), 0)
 
     def guest_report(self, guest_phone):
-        data = FB.search_idex_phone(FB(), guest_phone)
+        data = FB.search_idex_phone(FB(), guest_phone, self.ceremony_name)
         print(data)
         self.guest_name_r = data.get("User_Info").get("user_name", '')
         self.guest_phone = data.get("User_Info").get("user_phone", '')
         self.attend_time = data.get("User_Info").get("scanned_time", 'Not Yet')
+        confirmed = data.get("User_Info").get("confirmed", 0)
+        self.confirmed_status = False if confirmed==0 else True
+        print(self.confirmed_status)
+
+    def guest_confirmed(self, status, guest_phone):
+        if status:
+            local_status = 1
+        else:
+            local_status = 0
+        data = FB.confirm_guest(FB(), self.ceremony_name, guest_phone, local_status)
+        if data['status'] == 200:
+            toast("User status changed")
 
     def get_guest(self, phone, name, ceremony_name, isDouble):
         print(phone, name, ceremony_name)
@@ -268,13 +284,19 @@ class MainApp(MDApp):
 
     def get_data(self):
         barcode = self.root.ids.pda.text
-        guest_data = FB.search_idex(FB(), barcode, self.ceremony_name)
-        if guest_data:
-            self.guest_fetch_name = guest_data[1]['User_Info']['user_name']
-            self.guest_fetch_phone = guest_data[1]['User_Info']['user_phone']
-            self.guest_scanned = str(guest_data[1]['User_Info']['scanned'])
-            if self.dialog_spin:
-                Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
+        # guest_data = FB.search_idex(FB(), barcode, self.ceremony_name)
+        guest_data = FB.get_guest(FB(), barcode.lstrip(string.ascii_uppercase))
+        if guest_data[1] == 200:
+            if guest_data:
+                self.guest_fetch_name = guest_data['guest_name']
+                self.guest_fetch_phone = guest_data['guest_phone']
+                self.guest_scanned = '1' if guest_data['attended'] else '0'
+                self.guest_type = guest_data['card_type']
+                if self.dialog_spin:
+                    Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
+        else:
+            toast("Guest not found.")
+            self.screen_leave()
 
     def verify_user(self, gen_id):
         print(gen_id)
@@ -285,8 +307,9 @@ class MainApp(MDApp):
         thr.start()
 
     def scan_user(self):
-        data = FB.scan_guest(FB(), self.guest_fetch_phone, self.ceremony_name)
-        Clock.schedule_once(lambda dt: toast(data), 0)
+        barcode = self.root.ids.pda.text
+        data = FB.scan_guest_API(FB(), barcode.lstrip(string.ascii_uppercase))
+        Clock.schedule_once(lambda dt: toast(data['message']), 0)
         self.get_data()
 
     def ceremony_report_optimize(self):
