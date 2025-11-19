@@ -108,7 +108,7 @@ class MainApp(MDApp):
     # user
     guest_name = StringProperty("loading...")
     guest_number = StringProperty("loading...")
-    ceremony_name = StringProperty("ANS")
+    ceremony_name = StringProperty("EMS")
     guest_id = StringProperty("loading...")
     guest_data = DictProperty({})
     isDouble = False
@@ -288,10 +288,10 @@ class MainApp(MDApp):
         guest_data = FB.get_guest(FB(), barcode.lstrip(string.ascii_uppercase))
         if guest_data[1] == 200:
             if guest_data:
-                self.guest_fetch_name = guest_data['guest_name']
-                self.guest_fetch_phone = guest_data['guest_phone']
-                self.guest_scanned = '1' if guest_data['attended'] else '0'
-                self.guest_type = guest_data['card_type']
+                self.guest_fetch_name = guest_data[0]['guest_name']
+                self.guest_fetch_phone = guest_data[0]['guest_phone']
+                self.guest_scanned = '1' if guest_data[0]['attended'] else '0'
+                self.guest_type = guest_data[0]['card_type']
                 if self.dialog_spin:
                     Clock.schedule_once(lambda dt: self.dialog_spin.dismiss(), 0)
         else:
@@ -322,6 +322,7 @@ class MainApp(MDApp):
     guest_datas = DictProperty({})
     def ceremony_reports(self):
         report_list = self.root.ids.report_list
+        self.ceremony_name = FB.get_ceremony_name(FB())['data']
         ceremony_report = FB.ceremony_report(FB(), self.ceremony_name)
 
         print(ceremony_report)

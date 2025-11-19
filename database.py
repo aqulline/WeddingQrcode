@@ -6,6 +6,14 @@ from beem import sms
 import requests
 
 class FireBase:
+
+    def __init__(self):
+        self.base_url = self.get_base_url()
+        self.ceremony_name = self.get_ceremony_name()
+        print(self.base_url)
+        self.base_url = self.base_url['data']['url']
+        self.ceremony_name = self.ceremony_name['data']
+
     def Register_user(self, phone, username, password):
         import firebase_admin
         firebase_admin._apps.clear()
@@ -440,10 +448,41 @@ class FireBase:
         guests = [{"phaone": "", "attended": ""}]
 
 
+    def get_base_url(self):
+        import firebase_admin
+        firebase_admin._apps.clear()
+        from firebase_admin import credentials, initialize_app, db
+        try:
+            # Initialize Firebase app with credentials and database URL
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+            # Reference to the ceremony's info node
+            ceremony_guest_info_ref = db.reference("Ceremony").child('url')
+
+            return {"message": "Successfully!", "status": 200, "data": ceremony_guest_info_ref.get()}
+        except:
+            return {"message": "Internal Server error", "status": 500}
+
+    def get_ceremony_name(self):
+        import firebase_admin
+        firebase_admin._apps.clear()
+        from firebase_admin import credentials, initialize_app, db
+        try:
+            # Initialize Firebase app with credentials and database URL
+            cred = credentials.Certificate("credential/farmzon-abdcb-c4c57249e43b.json")
+            initialize_app(cred, {'databaseURL': 'https://farmzon-abdcb.firebaseio.com/'})
+            # Reference to the ceremony's info node
+            ceremony_guest_info_ref = db.reference("Ceremony").child('Call')
+
+            return {"message": "Successfully!", "status": 200, "data": ceremony_guest_info_ref.get()}
+        except:
+            return {"message": "Internal Server error", "status": 500}
+
     def get_guest(self, guest_id):
-        response = requests.post(url=f'http://127.0.0.1:8000/guest/{guest_id}/',
+        response = requests.post(url=f'{self.base_url}/guest/{guest_id}/',
                                  headers={'Content-Type': 'application/json'},)
 
+        print(response.json())
         if response.status_code == 200:
             return [response.json(), 200]
         else:
@@ -451,11 +490,13 @@ class FireBase:
 
 
     def scan_guest_API(self, guest_id):
-        response = requests.post(url=f'http://127.0.0.1:8000/guest/{guest_id}/scanned/',
+        response = requests.post(url=f'{self.base_url}/guest/{guest_id}/scanned/',
                                  headers={'Content-Type': 'application/json'}, )
 
         return response.json()
 
 
-
-# FireBase.get_guest(FireBase(), "10616")
+#
+# # FireBase.get_guest(FireBase(), "10616")
+# x = FireBase.get_ceremony_name(FireBase())
+# print(x)

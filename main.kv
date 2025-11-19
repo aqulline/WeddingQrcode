@@ -14,7 +14,7 @@ ScreenManager:
             pos_hint: {"top": 1}
             md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
             specific_text_color: "#C6C7C4"
-        Admin:
+        Ceremony:
 
     MDScreen:
         name:"guest_report"
@@ -62,12 +62,15 @@ ScreenManager:
                         font_size:"18sp"
                         size_hint_y: None
                         pos_hint:{'center_x':.6, 'center_y':.4}
-                    MDSwitch:
+                    MDRaisedButton:
+                        text:"Confirm"
+                        md_bg_color: 53 / 225, 59 / 225, 60 / 225, 1
+                        text_color: "#FFFFFF"
                         pos_hint: {'center_x': .7, 'center_y': .4}
-                        active: app.confirmed_status
-                        on_active:
-                            print(self.active)
-                            app.guest_confirmed(self.active, app.guest_phone)
+                        on_release:
+                            print("submit")
+                            app.guest_confirmed(True, app.guest_phone)
+
 
 
     MDScreen:
